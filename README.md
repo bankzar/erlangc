@@ -76,3 +76,49 @@ This project applies that logic in a lightweight web interface so that operation
 ```bash
 git clone https://github.com/bankzar/erlangc.git
 cd erlangc
+2. Install dependencies
+npm install
+3. Start the development server
+npm run dev
+4. Open in browser
+
+Visit the local URL shown in the terminal.
+
+Why This Project Matters
+
+This project reflects a practical operations mindset: instead of treating workforce planning as a static spreadsheet exercise, it turns a standard planning model into a usable interactive tool.
+
+It is especially relevant for environments where teams need to answer questions like:
+
+How many agents are needed if volume increases?
+What happens if AHT rises?
+How does service level change under different staffing assumptions?
+How sensitive is the plan to shrinkage or response targets?
+Current Scope
+
+This project is intended as a lightweight workforce planning utility, not a full enterprise WFM platform.
+
+Its focus is:
+
+accessibility
+speed
+planning convenience
+operational simulation
+Limitations
+
+Current limitations may include:
+
+not a full workforce management suite
+not a complete forecasting platform
+not a replacement for enterprise scheduling tools
+intended for staffing estimation and planning support rather than end-to-end rostering
+Possible Future Improvements
+
+Potential next steps include:
+
+multi-scenario comparison
+saved planning sessions
+downloadable planning reports
+visualization of staffing sensitivity
+support for additional queueing assumptions
+integration with broader workforce planning workflows
