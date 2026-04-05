@@ -82,7 +82,7 @@ npm install
 npm run dev
 4. Open in browser
 
-Visit the local URL shown in the terminal.
+## Visit the local URL shown in the terminal.
 
 Why This Project Matters
 
