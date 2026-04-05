@@ -79,16 +79,17 @@ This project applies that logic in a lightweight web interface so that operation
 git clone https://github.com/bankzar/erlangc.git
 cd erlangc
 ```
-```
+
 2. Install dependencies
+```
 npm install
 ```
-```
 3. Start the development server
+```
 npm run dev
 ```
-```
 5. Open in browser
+
 ```
 
 
