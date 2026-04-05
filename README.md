@@ -72,15 +72,23 @@ This project applies that logic in a lightweight web interface so that operation
 
 ## Run Locally
 
+## Run Locally
+
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/bankzar/erlangc.git
 cd erlangc
+```
+```
 2. Install dependencies
 npm install
+```
+```
 3. Start the development server
 npm run dev
-4. Open in browser
+```
+```
+5. Open in browser
 ```
 
 
