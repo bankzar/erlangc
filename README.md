@@ -81,6 +81,8 @@ npm install
 3. Start the development server
 npm run dev
 4. Open in browser
+```
+
 
 ## Visit the local URL shown in the terminal.
 
