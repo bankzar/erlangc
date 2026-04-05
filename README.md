@@ -80,15 +80,15 @@ git clone https://github.com/bankzar/erlangc.git
 cd erlangc
 ```
 
-2. Install dependencies
+##2. Install dependencies
 ```
 npm install
 ```
-3. Start the development server
+##3. Start the development server
 ```
 npm run dev
 ```
-5. Open in browser
+##4. Open in browser
 
 
 
