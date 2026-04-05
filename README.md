@@ -65,10 +65,10 @@ This project applies that logic in a lightweight web interface so that operation
 
 ## Tech Stack
 
-- Astro
-- TypeScript
-- Tailwind CSS
-- Front-end web application architecture
+- HTML
+- CSS
+- JavaScript
+
 
 ## Run Locally
 
