@@ -1,43 +1,59 @@
-# Astro on Netlify Platform Starter
+# WFM Staffing Dashboard | Erlang C Calculator
 
-[Live Demo](https://astro-platform-starter.netlify.app/)
+A lightweight single-page workforce management dashboard for call center staffing analysis.
 
-A modern starter based on Astro.js, Tailwind, and [Netlify Core Primitives](https://docs.netlify.com/core/overview/#develop) (Edge Functions, Image CDN, Blobs).
+This tool uses **Erlang C** calculations to estimate:
+- Peak hour call volume
+- Traffic intensity (Erlangs)
+- Minimum agents required to hit target service level
+- FTE requirement with shrinkage
+- Staffing sensitivity analysis across multiple agent counts
+- Occupancy, ASA, immediate answer rate, and estimated abandon rate
 
-## Astro Commands
+## Features
 
-All commands are run from the root of the project, from a terminal:
+- Clean dashboard-style UI
+- Adjustable call center staffing inputs
+- Instant recalculation on input changes
+- Service level targeting
+- Sensitivity table for staffing decisions
+- No build step required — just open `index.html`
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Inputs
 
-## Deploying to Netlify
+- Total Daily Calls
+- % Traffic in Peak Hour
+- Average Handle Time (AHT)
+- Target Service Level
+- Target Answer Time
+- Shrinkage
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/astro-platform-starter)
+## Tech Stack
 
-## Developing Locally
+- HTML
+- Tailwind CSS (CDN)
+- Vanilla JavaScript
 
-| Prerequisites                                                                |
-| :--------------------------------------------------------------------------- |
-| [Node.js](https://nodejs.org/) v18.20.8+.                                    |
-| (optional) [nvm](https://github.com/nvm-sh/nvm) for Node version management. |
+## Run locally
 
-1. Clone this repository, then run `npm install` in its root directory.
+Option 1: open `index.html` directly in your browser.
 
-2. Recommended: link your local repository to a Netlify project. This will ensure you're using the same runtime version for both local development and your deployed project.
+Option 2:
 
+```bash
+python -m http.server 8000
 ```
-netlify link
-```
 
-3. Run the Astro.js development server:
+Then open `http://localhost:8000`
 
-```
-npm run dev
-```
+## Live demo
+
+Netlify: https://erlangc.netlify.app/
+
+## Suggested GitHub repo description
+
+WFM Staffing Dashboard with Erlang C calculations for call center staffing and service level analysis.
+
+## Suggested topics
+
+`erlang-c` `call-center` `wfm` `workforce-management` `staffing` `dashboard` `javascript` `operations`

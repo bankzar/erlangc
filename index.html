@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WFM Staffing Dashboard | Erlang C Calculator</title>
+    <meta name="description"
+        content="Professional WFM Staffing Dashboard with Erlang C calculations. Analyze staffing sensitivity, service levels, and optimize call center performance.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        dark: {
+                            800: '#1e1b4b',
+                            900: '#0f0a1f',
+                            950: '#070412',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #070412 0%, #1e1b4b 50%, #070412 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .metric-value {
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .label-text {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            z-index: 10;
+            margin-bottom: 8px;
+        }
+
+        /* Table Styles */
+        .data-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead th {
+            background: rgba(99, 102, 241, 0.2);
+            border-bottom: 2px solid rgba(139, 92, 246, 0.4);
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table tbody tr.optimal-row {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+        }
+
+        .data-table tbody tr.optimal-row:hover {
+            background: rgba(99, 102, 241, 0.25);
+        }
+
+        .data-table td,
+        .data-table th {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sl-green {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .sl-red {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .occ-warning {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .occ-normal {
+            color: #4ade80;
+        }
+
+        .abandon-warning {
+            color: #fbbf24;
+        }
+
+        .abandon-danger {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .optimal-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .results-hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .results-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+    </style>
+</head>
+
+<body class="text-white min-h-screen p-4 md:p-8 overflow-x-hidden relative">
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Header -->
+        <header class="text-center mb-8 md:mb-12">
+            <div class="inline-flex items-center gap-3 mb-4">
+                <div
+                    class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center float-animation">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <h1
+                class="text-3xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-white via-primary-200 to-purple-300 bg-clip-text text-transparent">
+                WFM Staffing Dashboard
+            </h1>
+            <p class="text-gray-400 text-base md:text-lg max-w-2xl mx-auto">
+                Erlang C powered workforce management for optimal call center staffing
+            </p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                        </path>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold">Input Parameters</h2>
+            </div>
+
+            <form id="erlangForm">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Total Daily Calls -->
+                    <div class="tooltip">
+                        <label class="block label-text text-sm font-medium mb-2">
+                            Total Daily Calls
+                        </label>
+                        <span class="tooltip-text">Total number of calls received per day</span>
+                        <input type="number" id="totalDailyCalls" value="1000" min="1" step="1"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-white placeholder-gray-500">
+                    </div>
+
+                    <!-- Peak Hour Traffic % -->
+                    <div class="tooltip">
+                        <label class="block label-text text-sm font-medium mb-2">
+                            % Traffic in Peak Hour
+                        </label>
+                        <span class="tooltip-text">Percentage of daily calls during busiest hour (typically
+                            10-15%)</span>
+                        <input type="number" id="peakTrafficPercent" value="12" min="1" max="100" step="0.5"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-white placeholder-gray-500">
+                    </div>
+
+                    <!-- Average Handle Time -->
+                    <div class="tooltip">
+                        <label class="block label-text text-sm font-medium mb-2">
+                            Average Handle Time <span class="text-gray-500">(seconds)</span>
+                        </label>
+                        <span class="tooltip-text">Average time to handle one call (talk time + after-call work)</span>
+                        <input type="number" id="aht" value="180" min="1" step="1"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-white placeholder-gray-500">
+                    </div>
+
+                    <!-- Target Service Level -->
+                    <div class="tooltip">
+                        <label class="block label-text text-sm font-medium mb-2">
+                            Target Service Level <span class="text-gray-500">(%)</span>
+                        </label>
+                        <span class="tooltip-text">Percentage of calls to be answered within target time (e.g.,
+                            80%)</span>
+                        <input type="number" id="targetSL" value="80" min="1" max="100" step="1"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-white placeholder-gray-500">
+                    </div>
+
+                    <!-- Target Time -->
+                    <div class="tooltip">
+                        <label class="block label-text text-sm font-medium mb-2">
+                            Target Answer Time <span class="text-gray-500">(seconds)</span>
+                        </label>
+                        <span class="tooltip-text">Maximum wait time for target service level (e.g., 20 seconds)</span>
+                        <input type="number" id="targetTime" value="20" min="1" step="1"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-white placeholder-gray-500">
+                    </div>
+
+                    <!-- Shrinkage -->
+                    <div class="tooltip">
+                        <label class="block label-text text-sm font-medium mb-2">
+                            Shrinkage <span class="text-gray-500">(%)</span>
+                        </label>
+                        <span class="tooltip-text">Time lost to breaks, meetings, absences (typically 20-35%)</span>
+                        <input type="number" id="shrinkage" value="30" min="0" max="100" step="1"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-white placeholder-gray-500">
+                    </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <div class="mt-8 text-center">
+                    <button type="submit" id="calculateBtn"
+                        class="calculate-btn px-12 py-4 rounded-xl text-white font-semibold text-lg shadow-lg inline-flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        Calculate Staffing
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-hidden">
+            <!-- Summary Cards -->
+            <div class="grid md:grid-cols-4 gap-4 mb-8">
+                <!-- Peak Hour Volume Card -->
+                <div class="summary-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/30 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-400 text-sm">Peak Hour Volume</span>
+                    </div>
+                    <p class="text-3xl font-bold metric-value" id="peakHourVolume">-</p>
+                    <p class="text-gray-500 text-xs mt-1">calls/hour</p>
+                </div>
+
+                <!-- Traffic Intensity Card -->
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-400 text-sm">Traffic Intensity</span>
+                    </div>
+                    <p class="text-3xl font-bold text-white" id="trafficIntensity">-</p>
+                    <p class="text-gray-500 text-xs mt-1">Erlangs</p>
+                </div>
+
+                <!-- Optimal Agents Card -->
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-400 text-sm">Optimal Agents</span>
+                    </div>
+                    <p class="text-3xl font-bold text-white" id="optimalAgents">-</p>
+                    <p class="text-gray-500 text-xs mt-1">raw (before shrinkage)</p>
+                </div>
+
+                <!-- FTE Required Card -->
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-gray-400 text-sm">FTE Required</span>
+                    </div>
+                    <p class="text-3xl font-bold text-white" id="fteRequired">-</p>
+                    <p class="text-gray-500 text-xs mt-1">with shrinkage</p>
+                </div>
+            </div>
+
+            <!-- Staffing Sensitivity Table -->
+            <div class="glass-card rounded-3xl p-6 md:p-8 overflow-hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold">Staffing Sensitivity Analysis</h2>
+                        <p class="text-gray-500 text-sm">Impact of agent count on key performance metrics</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="data-table w-full text-left">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-4 text-gray-300 font-semibold text-sm rounded-tl-xl">Agents</th>
+                                <th class="px-4 py-4 text-gray-300 font-semibold text-sm">Service Level %</th>
+                                <th class="px-4 py-4 text-gray-300 font-semibold text-sm">Occupancy %</th>
+                                <th class="px-4 py-4 text-gray-300 font-semibold text-sm">ASA (sec)</th>
+                                <th class="px-4 py-4 text-gray-300 font-semibold text-sm">% Answered Immediately</th>
+                                <th class="px-4 py-4 text-gray-300 font-semibold text-sm rounded-tr-xl">Abandon Rate %
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensitivityTableBody">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Legend -->
+                <div class="mt-6 pt-6 border-t border-white/10">
+                    <div class="flex flex-wrap gap-6 text-sm text-gray-400">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span>Meets Target</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <span>Below Target / Risk</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                            <span>Warning</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="px-2 py-0.5 rounded text-xs bg-primary-500/30 text-primary-300">OPTIMAL</div>
+                            <span>Recommended Staffing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 md:mt-16 text-gray-500 text-sm">
+            <p>WFM Staffing Dashboard powered by Erlang C</p>
+            <p class="mt-1 text-gray-600">Based on queuing theory for call center workforce management</p>
+        </footer>
+    </div>
+
+    <script>
+        // WFM Staffing Dashboard - Erlang C Calculator
+        class WFMDashboard {
+            constructor() {
+                this.form = document.getElementById('erlangForm');
+                this.resultsSection = document.getElementById('resultsSection');
+                this.targetSL = 80;
+                this.init();
+            }
+
+            init() {
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.calculate();
+                });
+
+                // Auto-calculate on input change
+                const inputs = this.form.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('change', () => this.calculate());
+                });
+
+                // Initial calculation
+                this.calculate();
+            }
+
+            // Calculate factorial with memoization
+            factorial(n) {
+                if (n <= 1) return 1;
+                if (this._factorialCache && this._factorialCache[n]) {
+                    return this._factorialCache[n];
+                }
+                if (!this._factorialCache) this._factorialCache = {};
+                this._factorialCache[n] = n * this.factorial(n - 1);
+                return this._factorialCache[n];
+            }
+
+            // Calculate power
+            power(a, n) {
+                return Math.pow(a, n);
+            }
+
+            // Calculate Erlang C probability (probability of waiting)
+            erlangC(agents, trafficIntensity) {
+                const n = agents;
+                const a = trafficIntensity;
+
+                if (n <= a) return 1;
+
+                const aN = this.power(a, n);
+                const nFactorial = this.factorial(n);
+                const X = (aN / nFactorial) * (n / (n - a));
+
+                let Y = 0;
+                for (let k = 0; k < n; k++) {
+                    Y += this.power(a, k) / this.factorial(k);
+                }
+
+                const erlangCValue = X / (X + Y);
+                return Math.max(0, Math.min(1, erlangCValue));
+            }
+
+            // Calculate Service Level
+            serviceLevel(agents, trafficIntensity, aht, targetTime) {
+                const n = agents;
+                const a = trafficIntensity;
+
+                if (n <= a) return 0;
+
+                const ec = this.erlangC(n, a);
+                const exponent = -((n - a) * targetTime / aht);
+                const sl = 1 - (ec * Math.exp(exponent));
+
+                return Math.max(0, Math.min(1, sl));
+            }
+
+            // Calculate Average Speed of Answer (ASA)
+            averageSpeedOfAnswer(agents, trafficIntensity, aht) {
+                const n = agents;
+                const a = trafficIntensity;
+
+                if (n <= a) return Infinity;
+
+                const ec = this.erlangC(n, a);
+                const asa = (ec * aht) / (n - a);
+
+                return Math.max(0, asa);
+            }
+
+            // Calculate occupancy rate
+            occupancyRate(agents, trafficIntensity) {
+                return Math.min(trafficIntensity / agents, 1);
+            }
+
+            // Calculate % answered immediately (1 - Erlang C probability)
+            immediateAnswer(agents, trafficIntensity) {
+                return 1 - this.erlangC(agents, trafficIntensity);
+            }
+
+            // Estimate abandon rate based on ASA (heuristic: exponential patience model)
+            // Using patience of ~60 seconds average
+            abandonRate(asa, patience = 60) {
+                if (asa === Infinity) return 100;
+                // Exponential model: P(abandon) = 1 - e^(-ASA/patience)
+                // Simplified for typical call center behavior
+                const rate = (1 - Math.exp(-asa / patience)) * 100;
+                return Math.min(Math.max(0, rate), 100);
+            }
+
+            // Find minimum agents to meet service level target
+            findMinAgents(trafficIntensity, aht, targetSL, targetTime) {
+                let agents = Math.ceil(trafficIntensity) + 1;
+                let maxAgents = Math.ceil(trafficIntensity * 3);
+
+                while (agents <= maxAgents) {
+                    const sl = this.serviceLevel(agents, trafficIntensity, aht, targetTime);
+                    if (sl >= targetSL) {
+                        const prevSL = this.serviceLevel(agents - 1, trafficIntensity, aht, targetTime);
+                        if (prevSL < targetSL || agents - 1 <= trafficIntensity) {
+                            return agents;
+                        }
+                        agents--;
+                    } else {
+                        agents++;
+                    }
+                }
+
+                return agents;
+            }
+
+            calculate() {
+                // Get input values
+                const totalDailyCalls = parseFloat(document.getElementById('totalDailyCalls').value) || 1000;
+                const peakTrafficPercent = parseFloat(document.getElementById('peakTrafficPercent').value) || 12;
+                const aht = parseFloat(document.getElementById('aht').value) || 180;
+                this.targetSL = parseFloat(document.getElementById('targetSL').value) / 100 || 0.8;
+                const targetTime = parseFloat(document.getElementById('targetTime').value) || 20;
+                const shrinkage = parseFloat(document.getElementById('shrinkage').value) / 100 || 0.3;
+
+                // Calculate Peak Hour Volume
+                const peakHourVolume = Math.round(totalDailyCalls * (peakTrafficPercent / 100));
+
+                // Calculate traffic intensity (Erlangs)
+                const trafficIntensity = (peakHourVolume * aht) / 3600;
+
+                // Find optimal agents
+                const optimalAgents = this.findMinAgents(trafficIntensity, aht, this.targetSL, targetTime);
+
+                // Calculate FTE with shrinkage
+                const fteRequired = Math.ceil(optimalAgents / (1 - shrinkage));
+
+                // Update summary cards
+                document.getElementById('peakHourVolume').textContent = peakHourVolume.toLocaleString();
+                document.getElementById('trafficIntensity').textContent = trafficIntensity.toFixed(2);
+                document.getElementById('optimalAgents').textContent = optimalAgents;
+                document.getElementById('fteRequired').textContent = fteRequired;
+
+                // Generate sensitivity table
+                this.generateSensitivityTable(optimalAgents, trafficIntensity, aht, targetTime);
+
+                // Show results
+                this.resultsSection.classList.remove('results-hidden');
+                this.resultsSection.classList.add('results-visible');
+            }
+
+            generateSensitivityTable(optimalAgents, trafficIntensity, aht, targetTime) {
+                const tbody = document.getElementById('sensitivityTableBody');
+                tbody.innerHTML = '';
+
+                // Range: Optimal - 5 to Optimal + 5
+                const minAgents = Math.max(Math.ceil(trafficIntensity) + 1, optimalAgents - 5);
+                const maxAgents = optimalAgents + 5;
+
+                for (let agents = minAgents; agents <= maxAgents; agents++) {
+                    const sl = this.serviceLevel(agents, trafficIntensity, aht, targetTime) * 100;
+                    const occupancy = this.occupancyRate(agents, trafficIntensity) * 100;
+                    const asa = this.averageSpeedOfAnswer(agents, trafficIntensity, aht);
+                    const immediate = this.immediateAnswer(agents, trafficIntensity) * 100;
+                    const abandon = this.abandonRate(asa);
+
+                    const isOptimal = agents === optimalAgents;
+
+                    const row = document.createElement('tr');
+                    row.className = isOptimal ? 'optimal-row' : '';
+
+                    // Agents column
+                    const agentCell = document.createElement('td');
+                    agentCell.className = 'px-4 py-4 font-medium';
+                    agentCell.innerHTML = `${agents}${isOptimal ? '<span class="optimal-badge">OPTIMAL</span>' : ''}`;
+                    row.appendChild(agentCell);
+
+                    // Service Level column
+                    const slCell = document.createElement('td');
+                    slCell.className = `px-4 py-4 ${sl >= this.targetSL * 100 ? 'sl-green' : 'sl-red'}`;
+                    slCell.textContent = sl.toFixed(1) + '%';
+                    row.appendChild(slCell);
+
+                    // Occupancy column
+                    const occCell = document.createElement('td');
+                    occCell.className = `px-4 py-4 ${occupancy > 85 ? 'occ-warning' : 'occ-normal'}`;
+                    occCell.textContent = occupancy.toFixed(1) + '%';
+                    row.appendChild(occCell);
+
+                    // ASA column
+                    const asaCell = document.createElement('td');
+                    asaCell.className = 'px-4 py-4 text-gray-300';
+                    asaCell.textContent = asa === Infinity ? '∞' : asa.toFixed(1);
+                    row.appendChild(asaCell);
+
+                    // Immediate Answer column
+                    const immCell = document.createElement('td');
+                    immCell.className = 'px-4 py-4 text-gray-300';
+                    immCell.textContent = immediate.toFixed(1) + '%';
+                    row.appendChild(immCell);
+
+                    // Abandon Rate column
+                    const abandonCell = document.createElement('td');
+                    let abandonClass = 'text-gray-300';
+                    if (abandon > 10) abandonClass = 'abandon-danger';
+                    else if (abandon > 5) abandonClass = 'abandon-warning';
+                    abandonCell.className = `px-4 py-4 ${abandonClass}`;
+                    abandonCell.textContent = abandon.toFixed(1) + '%';
+                    row.appendChild(abandonCell);
+
+                    tbody.appendChild(row);
+                }
+            }
+        }
+
+        // Initialize dashboard when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new WFMDashboard();
+        });
+    </script>
+</body>
+
+</html>
