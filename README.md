@@ -90,7 +90,7 @@ npm run dev
 ```
 5. Open in browser
 
-```
+
 
 
 ## Visit the local URL shown in the terminal.
