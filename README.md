@@ -1,59 +1,78 @@
-# WFM Staffing Dashboard | Erlang C Calculator
+# Erlang C Workforce Calculator
 
-A lightweight single-page workforce management dashboard for call center staffing analysis.
+A browser-based Erlang C calculator built for contact center and workforce planning use cases.
 
-This tool uses **Erlang C** calculations to estimate:
-- Peak hour call volume
-- Traffic intensity (Erlangs)
-- Minimum agents required to hit target service level
-- FTE requirement with shrinkage
-- Staffing sensitivity analysis across multiple agent counts
-- Occupancy, ASA, immediate answer rate, and estimated abandon rate
+## Problem
 
-## Features
+Capacity planning in call centers is often still done manually in spreadsheets, with planners repeatedly adjusting assumptions such as call volume, average handling time, service level targets, and shrinkage.
 
-- Clean dashboard-style UI
-- Adjustable call center staffing inputs
-- Instant recalculation on input changes
-- Service level targeting
-- Sensitivity table for staffing decisions
-- No build step required — just open `index.html`
+This creates common problems:
 
-## Inputs
+- planning takes too long for quick decision-making
+- scenario comparison is difficult
+- operational teams rely on manual formulas that are easy to break
+- simulation is inconvenient when business conditions change
 
-- Total Daily Calls
-- % Traffic in Peak Hour
-- Average Handle Time (AHT)
-- Target Service Level
-- Target Answer Time
-- Shrinkage
+This project was built to make Erlang C-based workforce planning faster, more accessible, and easier to use in a browser.
+
+## Solution
+
+Erlang C Workforce Calculator helps estimate staffing requirements based on common contact center planning inputs, such as:
+
+- forecasted contact volume
+- average handling time (AHT)
+- target service level
+- target answer time
+- shrinkage
+- working hours / staffing assumptions
+
+Instead of relying on spreadsheet formulas, users can adjust assumptions in a browser-based interface and immediately see how those changes affect required staffing and service performance.
+
+## What the Tool Does
+
+This calculator is designed to support quick operational planning and “what-if” analysis for service environments.
+
+Typical outputs include:
+
+- estimated number of agents required
+- service level implications
+- occupancy-related planning insight
+- quick comparison across different traffic assumptions
+
+The main value of the tool is speed and usability: it allows planners to move from raw assumptions to staffing estimates without rebuilding formulas each time.
+
+## Use Cases
+
+- Contact center staffing estimation
+- Service level planning
+- Workforce what-if simulation
+- Quick sensitivity analysis for volume / AHT changes
+- Internal planning support before final WFM decisions
+
+## Why Erlang C
+
+Erlang C is a standard queueing approach commonly used in inbound contact center planning to estimate staffing needs under waiting-line conditions.
+
+This project applies that logic in a lightweight web interface so that operational teams can test planning assumptions more quickly and with less spreadsheet overhead.
+
+## Key Features
+
+- browser-based workforce calculator
+- fast scenario testing
+- staffing estimation from operational inputs
+- lightweight interface for planning use
+- suitable for internal simulations and planning support
 
 ## Tech Stack
 
-- HTML
-- Tailwind CSS (CDN)
-- Vanilla JavaScript
+- Astro
+- TypeScript
+- Tailwind CSS
+- Front-end web application architecture
 
-## Run locally
+## Run Locally
 
-Option 1: open `index.html` directly in your browser.
-
-Option 2:
-
+### 1. Clone the repository
 ```bash
-python -m http.server 8000
-```
-
-Then open `http://localhost:8000`
-
-## Live demo
-
-Netlify: https://erlangc.netlify.app/
-
-## Suggested GitHub repo description
-
-WFM Staffing Dashboard with Erlang C calculations for call center staffing and service level analysis.
-
-## Suggested topics
-
-`erlang-c` `call-center` `wfm` `workforce-management` `staffing` `dashboard` `javascript` `operations`
+git clone https://github.com/bankzar/erlangc.git
+cd erlangc
